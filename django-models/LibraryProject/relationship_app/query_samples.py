@@ -6,7 +6,8 @@ import django
 # Ensure project root is on path so this script can be run directly
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(APP_DIR)
-sys.path.append(PROJECT_ROOT)
+if PROJECT_ROOT not in sys.path:
+    sys.path.append(PROJECT_ROOT)
 
 # IMPORTANT: replace 'LibraryProject.settings' with your project's settings module if different
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LibraryProject.settings')
@@ -64,7 +65,8 @@ def get_librarian_for_library(library_name):
 
     # Access the OneToOne reverse relation: library.librarian
     try:
-        librarian = library.librarian
+        librarian = Librarian.objects.get(library=library)
+        print(f"Librarian for '{library.name}': {librarian.name}")
     except Librarian.DoesNotExist:
         print(f"No librarian assigned to library '{library.name}'")
         return
