@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from .views import list_books
 from .views import LibraryDetailView
 
@@ -6,7 +6,9 @@ from . import views
 from .views import register
 from django.contrib.auth import views as auth_views
 
-from . import admin_view, librarian_view, member_view
+from .admin_view import admin_view
+from .librarian_view import librarian_view
+from .member_view import member_view
 
 urlpatterns = [
     # function-based view
@@ -23,7 +25,13 @@ urlpatterns = [
 ]
 
 urlpatterns = [
-    path('admin-view/', admin_view.admin_view, name='admin_view'),
-    path('librarian-view/', librarian_view.librarian_view, name='librarian_view'),
-    path('member-view/', member_view.member_view, name='member_view'),
+    path('admin-view/', admin_view, name='admin_view'),
+    path('librarian-view/', librarian_view, name='librarian_view'),
+    path('member-view/', member_view, name='member_view'),
 ]
+
+urlpatterns = [
+    path('', include((urlpatterns, 'relationship_app')),
+    path('accounts/', include('django.contrib.auth.urls'))),  # for built-in auth views
+]
+
