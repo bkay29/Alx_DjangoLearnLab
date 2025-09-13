@@ -1,5 +1,5 @@
-{% extends 'relationship_app/base.html' %}
+{% extends "base.html" %}
 {% block content %}
-  <h2>Librarian Page</h2>
-  <p>Welcome {{ request.user.username }} — you are a Librarian.</p>
+  <h1>Librarian Page</h1>
+  <p>Only Librarians can access this page.</p>
 {% endblock %}
