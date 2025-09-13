@@ -6,9 +6,7 @@ from . import views
 from .views import register
 from django.contrib.auth import views as auth_views
 
-from . import admin_view
-from . import librarian_view
-from . import member_view
+from . import admin_view, librarian_view, member_view
 
 urlpatterns = [
     # function-based view
@@ -25,7 +23,7 @@ urlpatterns = [
 ]
 
 urlpatterns = [
-    path('role/admin/', views.admin_view, name='admin_view'),
-    path('role/librarian/', views.librarian_view, name='librarian_view'),
-    path('role/member/', views.member_view, name='member_view'),
+    path('admin-view/', admin_view.admin_view, name='admin_view'),
+    path('librarian-view/', librarian_view.librarian_view, name='librarian_view'),
+    path('member-view/', member_view.member_view, name='member_view'),
 ]
