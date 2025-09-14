@@ -24,21 +24,13 @@ urlpatterns = [
     # Auth (register, login, logout)
     path('register/', views.register, name='register'),
 
-    path('login/', LoginView.as_view(
-        template_name='relationship_app/login.html'
-    ), name='login'),
+    path('login/', LoginView.as_view(template_name="relationship_app/login.html"), name='login'),
 
-    path('logout/', LogoutView.as_view(
-        template_name='relationship_app/logout.html'
-    ), name='logout'),
+    path('logout/', LogoutView.as_view(template_name="relationship_app/logout.html"), name='logout'),
 
     # Checker-specific auth views (extra, no overwrite)
-    path('login-checker/', LoginView.as_view(
-        template_name="login.html"
-    ), name='login_checker'),
-    path('logout-checker/', LogoutView.as_view(
-        template_name="logout.html"
-    ), name='logout_checker'),
+    path('login-checker/', LoginView.as_view(template_name="relationship_app/login.html"), name='login_checker'),
+    path('logout-checker/', LogoutView.as_view(template_name="relationship_app/logout.html"), name='logout_checker'),
 
     # Role-based views
     path('admin-view/', admin_view, name='admin_view'),
