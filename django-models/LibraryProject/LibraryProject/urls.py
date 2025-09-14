@@ -16,10 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from relationship_app import views  # Ensure 'relationship_app' is in INSTALLED_APPS and is at the correct path
+from relationship_app import views  # home view is inside relationship_app/views.py
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('admin/', admin.site.urls),
-    path('relationship_app/', include('relationship_app.urls')),
+    path('admin/', admin.site.urls),  # Admin site
+    path('', views.home, name='home'),  # Home page at root
+    path('relationship_app/', include('relationship_app.urls')),  # Include app URLs
+    path('accounts/', include('django.contrib.auth.urls')),  # Built-in auth URLs
 ]
