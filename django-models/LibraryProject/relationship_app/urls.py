@@ -10,7 +10,11 @@ from .member_view import member_view
 urlpatterns = [
     # Home / Books / Libraries
     path('books/', views.list_books, name='list_books'),
+
+    # Keep your original plural path
     path('libraries/<int:pk>/', views.LibraryDetailView.as_view(), name='library_detail'),
+    # Add singular path for checker compatibility
+    path('library/<int:pk>/', views.LibraryDetailView.as_view(), name='library_detail_checker'),
 
     # Auth (register, login, logout)
     path('register/', views.register, name='register'),

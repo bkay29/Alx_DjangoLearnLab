@@ -1,14 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import user_passes_test, permission_required
 from django.contrib.auth.models import Group
-from .models import Book, Library
-from django.contrib.auth.decorators import permission_required
-from django.shortcuts import get_object_or_404
+from .models import Book, Library   # important 
 from .forms import BookForm  # make sure you have a BookForm for adding/editing books
+
 
 # ---------------------------
 # Home View
@@ -20,23 +19,26 @@ def home(request):
 # ---------------------------
 # Book / Library Views
 # ---------------------------
+
+# Function-based view: List all books
 def list_books(request):
     books = Book.objects.all()
-    return render(request, 'relationship_app/list_books.html', {'books': books})
+    return render(request, 'list_books.html', {'books': books})
+    # If you want to keep namespaced templates, you can add both options:
+    # return render(request, 'relationship_app/list_books.html', {'books': books})
 
 
+# Class-based view: Library details
 class LibraryDetailView(DetailView):
     model = Library
-    template_name = 'relationship_app/library_detail.html'
+    template_name = 'library_detail.html'   
     context_object_name = 'library'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         library = self.get_object()
-        try:
-            context['books'] = library.books.all()
-        except Exception:
-            context['books'] = library.book_set.all()
+        # safer way: handle both related_name=books and default book_set
+        context['books'] = getattr(library, 'books', library.book_set).all()
         return context
 
 
