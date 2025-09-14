@@ -5,7 +5,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import user_passes_test, permission_required
 from django.contrib.auth.models import Group
-from .models import Book, Library   # important 
+from .models import Book
+from .models import Library   
 from .forms import BookForm  # make sure you have a BookForm for adding/editing books
 
 
