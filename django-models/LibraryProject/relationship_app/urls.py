@@ -1,6 +1,8 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .views import LibraryDetailView
+from django.contrib.auth.views import LoginView, LogoutView  # 🔑 added
 
 # role-based views in their own files
 from .admin_view import admin_view
@@ -10,6 +12,7 @@ from .member_view import member_view
 urlpatterns = [
     # Home / Books / Libraries
     path('books/', views.list_books, name='list_books'),
+    path("library/<int:pk>/", LibraryDetailView.as_view(), name="library_detail"),  # class-based view
 
     # Keep your original plural path
     path('libraries/<int:pk>/', views.LibraryDetailView.as_view(), name='library_detail'),
@@ -24,6 +27,14 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(
         template_name='relationship_app/logout.html'
     ), name='logout'),
+
+    # Checker-specific auth views (extra, no overwrite)
+    path('login-checker/', LoginView.as_view(
+        template_name="relationship_app/login.html"
+    ), name='login_checker'),
+    path('logout-checker/', LogoutView.as_view(
+        template_name="relationship_app/logout.html"
+    ), name='logout_checker'),
 
     # Role-based views
     path('admin-view/', admin_view, name='admin_view'),

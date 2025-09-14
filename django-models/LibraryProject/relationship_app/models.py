@@ -63,5 +63,3 @@ def save_user_profile(sender, instance, **kwargs):
     # ensure profile exists and is saved whenever the user is saved
     if hasattr(instance, 'userprofile'):
         instance.userprofile.save()
-
-
