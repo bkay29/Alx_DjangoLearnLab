@@ -31,7 +31,7 @@ urlpatterns = [
 ]
 
 urlpatterns = [
-    path('', include((urlpatterns, 'relationship_app')),
-    path('accounts/', include('django.contrib.auth.urls'))),  # for built-in auth views
+
+    path('accounts/', include('django.contrib.auth.urls')),  # for built-in auth views
 ]
 
