@@ -29,7 +29,7 @@ urlpatterns = [
     # ---------------------------
     # Secured Book Management URLs
     # ---------------------------
-    path('books/add/', views.add_book, name='add_book'),
-    path('books/edit/<int:pk>/', views.edit_book, name='edit_book'),
-    path('books/delete/<int:pk>/', views.delete_book, name='delete_book'),
+    path('add_book/', views.add_book, name='add_book'),
+    path('edit_book/<int:pk>/', views.edit_book, name='edit_book'),
+    path('delete_book/<int:pk>/', views.delete_book, name='delete_book'),
 ]
