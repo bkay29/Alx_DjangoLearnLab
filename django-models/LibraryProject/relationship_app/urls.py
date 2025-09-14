@@ -34,10 +34,10 @@ urlpatterns = [
 
     # Checker-specific auth views (extra, no overwrite)
     path('login-checker/', LoginView.as_view(
-        template_name="relationship_app/login.html"
+        template_name="login.html"
     ), name='login_checker'),
     path('logout-checker/', LogoutView.as_view(
-        template_name="relationship_app/logout.html"
+        template_name="logout.html"
     ), name='logout_checker'),
 
     # Role-based views
