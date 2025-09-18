@@ -1,0 +1,13 @@
+<h1>Books</h1>
+<form method="get" action="">
+  <input type="text" name="q" value="{{ query }}">
+  <button type="submit">Search</button>
+</form>
+
+<ul>
+  {% for book in books %}
+    <li>{{ book.title }} — {{ book.author }}</li>
+  {% empty %}
+    <li>No books found.</li>
+  {% endfor %}
+</ul>

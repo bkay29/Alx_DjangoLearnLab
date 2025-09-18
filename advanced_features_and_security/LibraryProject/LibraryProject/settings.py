@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@^dhip#3x%&2r2p!b^)fe0=emkh+k&p(i)w6555n@rqi^lqynb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "[::1]"]
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bookshelf',
     'relationship_app',
+    'csp',
 ]
 
 AUTH_USER_MODEL = 'bookshelf.CustomUser'
@@ -51,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware'
 ]
 
 ROOT_URLCONF = 'LibraryProject.urls'
@@ -128,3 +130,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Browser protections
+SECURE_BROWSER_XSS_FILTER = True                 # enables the X-XSS-Protection header
+SECURE_CONTENT_TYPE_NOSNIFF = True               # prevents the browser from MIME-sniffing
+X_FRAME_OPTIONS = "DENY"                         # prevents clickjacking (use "SAMEORIGIN" if you intentionally allow framing)
+
+
+# Cookie security - ensure cookies only sent via HTTPS in production
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+SESSION_COOKIE_HTTPONLY = True                   # prevents JS access to session cookie
+CSRF_COOKIE_HTTPONLY = False                     # Django's CSRF cookie is often not httpOnly; leave False unless you adapt client-side code
+SECURE_SSL_REDIRECT = True                       # redirect HTTP to HTTPS (enable only when you have HTTPS)
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'",)  # expand only for trusted external script domains
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")  # if you rely on inline styles, but try to avoid unsafe-inline
