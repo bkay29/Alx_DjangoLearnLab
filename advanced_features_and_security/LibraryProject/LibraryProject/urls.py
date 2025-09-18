@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Admin site
     path('', views.home, name='home'),  # Home page at root
     path('relationship_app/', include('relationship_app.urls')),  # Include app URLs
+    path('books/', include('bookshelf.urls')),  # Include bookshelf app URLs
     path('accounts/', include('django.contrib.auth.urls')),  # Built-in auth URLs
 ]
