@@ -1,15 +1,47 @@
 from django.contrib import admin
-from .models import Book
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
+from .models import Book, CustomUser
+
+
+# --- Custom User Admin Setup ---
+class CustomUserCreationForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = CustomUser
+        fields = ('username', 'email', 'date_of_birth', 'profile_photo')
+
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'date_of_birth', 'profile_photo')
+
+
+class CustomUserAdmin(UserAdmin):
+    add_form = CustomUserCreationForm
+    form = CustomUserChangeForm
+    model = CustomUser
+
+    list_display = ('username', 'email', 'is_staff', 'is_active', 'date_of_birth')
+    list_filter = ('is_staff', 'is_active')
+
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('date_of_birth', 'profile_photo')}),
+    )
+
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {'fields': ('date_of_birth', 'profile_photo')}),
+    )
+
+
+# --- Book Admin Setup ---
 class BookAdmin(admin.ModelAdmin):
-    # Columns to show in the admin list view
     list_display = ('title', 'author', 'publication_year')
-
-    # Filters shown in the right sidebar (or top depending on Django version)
     list_filter = ('publication_year', 'author')
-
-    # Fields that can be searched using the admin search box
     search_fields = ('title', 'author')
 
-# Register the model with the admin site
+
+# --- Register Models ---
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Book, BookAdmin)
