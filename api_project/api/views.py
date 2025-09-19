@@ -5,16 +5,20 @@ import rest_framework.viewsets
 from .models import Book
 from .serializers import BookSerializer
 
-# The old BookList view for the 'books/' endpoint
+# Keep the old BookList view for 'books/' endpoint
 class BookList(ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
+    # Apply permissions (must be authenticated to see this list)
+    permission_classes = [permissions.IsAuthenticated]
 
-# The new BookViewSet for full CRUD operations
+# Add the new BookViewSet for full CRUD operations
 class BookViewSet(rest_framework.viewsets.ModelViewSet):
     """
     BookViewSet handles list, create, retrieve, update, and destroy for Book.
+    Requires authentication for access.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.AllowAny]  # adjust as needed
+    # Restrict access — only authenticated users can CRUD books
+    permission_classes = [permissions.IsAuthenticated]
