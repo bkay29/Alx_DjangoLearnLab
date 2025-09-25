@@ -24,22 +24,14 @@ class BookListView(generics.ListAPIView):
     # enable django-filter, DRF search, and ordering
     filter_backends = [
         DjangoFilterBackend,   # django_filters integration (for ?title=... etc)
-        SearchFilter,          # for ?search=
-        OrderingFilter,        # for ?ordering=
+        filter.SearchFilter,          # for ?search=
+        filter.OrderingFilter,        # for ?ordering=
     ]
 
     # fields exposed for simple filtering: ?title=...&author=...&publication_year=...
-    # (if your model uses a different field name, adapt these to your Book model)
     filterset_fields = ['title', 'author', 'publication_year']
-
-    # fields used by search filter (text-based search)
     search_fields = ['title', 'author']   # adjust to real fields in Book
-
-    # fields allowed to be used for ordering via ?ordering=<field>
-    # include both publication_year and published_date to be safe
     ordering_fields = ['title', 'publication_year', 'published_date', 'author', 'id']
-
-    # optional default ordering
     ordering = ['title']
 
 
