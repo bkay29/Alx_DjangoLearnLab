@@ -24,8 +24,8 @@ class BookListView(generics.ListAPIView):
     # enable django-filter, DRF search, and ordering
     filter_backends = [
         DjangoFilterBackend,   # django_filters integration (for ?title=... etc)
-        filter.SearchFilter,          # for ?search=
-        filter.OrderingFilter,        # for ?ordering=
+        filters.SearchFilter,          # for ?search=
+        filters.OrderingFilter,        # for ?ordering=
     ]
 
     # fields exposed for simple filtering: ?title=...&author=...&publication_year=...
