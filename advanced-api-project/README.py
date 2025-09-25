@@ -8,3 +8,8 @@
 # Permissions:
 # Read endpoints: public (AllowAny)
 # Create/Update/Delete: authenticated only (IsAuthenticated)
+
+# API filtering/search/ordering
+# Filtering: ?title=&author=&publication_year=
+# Search: ?search=<term>  (searches title and author)
+# Ordering: ?ordering=title or ?ordering=-publication_year
