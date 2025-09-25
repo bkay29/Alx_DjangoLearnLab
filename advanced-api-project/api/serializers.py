@@ -8,6 +8,14 @@ class BookSerializer(serializers.ModelSerializer):
         model = Book
         fields = '__all__'   #serialize all fields of the Book model
 
+    def validate_title(self, value):
+        """
+        Ensure title is not empty or just whitespace.
+        """
+        if not value.strip():
+            raise serializers.ValidationError("Title cannot be empty.")
+        return value
+
     # Field-level validation for publication_year
     def validate_publication_year(self, value):
         """
