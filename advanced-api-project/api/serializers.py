@@ -25,8 +25,7 @@ class BookSerializer(serializers.ModelSerializer):
         current_year = datetime.date.today().year
         if value > current_year:
             raise serializers.ValidationError("publication_year cannot be in the future.")
-        return value
-
+        return value   
 
 # AuthorSerializer: includes the Author 'name' and a nested list of the author's books.
 class AuthorSerializer(serializers.ModelSerializer):
