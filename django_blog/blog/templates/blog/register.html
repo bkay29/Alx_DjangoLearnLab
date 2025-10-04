@@ -1,0 +1,20 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Register - Django Blog{% endblock %}
+
+{% block content %}
+<!-- Load register-specific CSS -->
+<link rel="stylesheet" href="{% static 'blog/css/register.css' %}">
+
+<div class="register-container">
+    <h2>Create an Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+</div>
+{% endblock %}
+
