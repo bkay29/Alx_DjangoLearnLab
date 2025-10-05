@@ -4,12 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import CustomUserCreationForm, UserUpdateForm, PostForm
 
-# Imports for class-based CRUD views
+# Class-based view imports
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-# Import the Post model
 from .models import Post
 
 
@@ -44,15 +43,15 @@ def profile_view(request):
     return render(request, 'blog/profile.html', {'form': form})
 
 
-# ----------------------------
-# Post CRUD class-based views
-# ----------------------------
+# ------------------------------------
+# Post CRUD views (class-based views)
+# ------------------------------------
 
 class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'   # blog/templates/blog/post_list.html
     context_object_name = 'posts'
-    paginate_by = 10  
+    paginate_by = 10  # optional
 
 
 class PostDetailView(DetailView):
@@ -61,11 +60,14 @@ class PostDetailView(DetailView):
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
+    """
+    Create a new post. Only authenticated users may create posts.
+    """
     model = Post
     form_class = PostForm
-    template_name = 'blog/post_form.html'  # blog/templates/blog/post_form.html
+    template_name = 'blog/post_form.html'
     success_url = reverse_lazy('blog:post-list')
-    login_url = 'login'  # you have a 'login' named URL
+    login_url = 'login'  # assumes a 'login' named URL exists
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -74,6 +76,9 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Update an existing post. Only the post's author may update it.
+    """
     model = Post
     form_class = PostForm
     template_name = 'blog/post_form.html'
@@ -81,23 +86,27 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     login_url = 'login'
 
     def test_func(self):
-        # Only the author can update
+        # Ensures only the author can edit
         post = self.get_object()
         return self.request.user == post.author
 
     def handle_no_permission(self):
+        # Provide a friendly message and default behavior
         messages.error(self.request, "You do not have permission to edit this post.")
         return super().handle_no_permission()
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Delete a post. Only the post's author may delete it.
+    """
     model = Post
     template_name = 'blog/post_confirm_delete.html'
     success_url = reverse_lazy('blog:post-list')
     login_url = 'login'
 
     def test_func(self):
-        # Only the author can delete
+        # Ensures only the author can delete
         post = self.get_object()
         return self.request.user == post.author
 

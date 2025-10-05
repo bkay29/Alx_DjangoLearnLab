@@ -1,0 +1,14 @@
+{% extends "blog/base.html" %}
+{% block title %}Create Post | Django Blog{% endblock %}
+
+{% block content %}
+<h1>Create a New Post</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Post</button>
+</form>
+
+<p><a href="{% url 'post-list' %}">← Back to Posts</a></p>
+{% endblock %}
