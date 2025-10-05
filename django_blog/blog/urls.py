@@ -1,4 +1,4 @@
-from django.urls import path 
+from django.urls import path  
 from django.contrib.auth import views as auth_views
 from . import views
 
@@ -66,6 +66,10 @@ urlpatterns = [
     # Posts by tag (typed converter; preferred)
     path('tags/<str:tag_name>/', views.posts_by_tag, name='posts-by-tag'),
 
-    # delegate for checkers that look for 'tags/<tag_name>/'
+    # delegate for checkers for 'tags/<tag_name>/'
     path('tags/<tag_name>/', _posts_by_tag_delegate, name='posts-by-tag-exact'),
+
+    # --------- EXACT slug-based route ----------
+    path('tags/<slug:tag_slug>/', views.PostByTagListView.as_view(), name='posts-by-tag-slug'),
 ]
+

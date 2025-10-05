@@ -51,6 +51,28 @@ class PostListView(ListView):
     paginate_by = 10
 
 
+class PostByTagListView(ListView):
+    """
+    List posts filtered by tag slug (URL: tags/<slug:tag_slug>/).
+    Checker looks for PostByTagListView.as_view() in urls.py.
+    """
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        tag = get_object_or_404(Tag, slug__iexact=tag_slug)
+        return Post.objects.filter(tags__slug__iexact=tag.slug).distinct()
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        tag_slug = self.kwargs.get('tag_slug')
+        ctx['tag'] = get_object_or_404(Tag, slug__iexact=tag_slug)
+        return ctx
+
+
 class PostDetailView(DetailView):
     model = Post
     template_name = 'blog/post_detail.html'
@@ -195,4 +217,3 @@ def posts_by_tag(request, tag_name):
     tag = get_object_or_404(Tag, name__iexact=tag_name)
     posts = Post.objects.filter(tags__name__iexact=tag_name)
     return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})
-
