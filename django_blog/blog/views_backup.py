@@ -9,9 +9,7 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from django.db.models import Q
-
-from .models import Post, Comment, Tag
+from .models import Post, Comment
 
 
 def register_view(request):
@@ -53,7 +51,7 @@ class PostListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'   # blog/templates/blog/post_list.html
     context_object_name = 'posts'
-    paginate_by = 10 
+    paginate_by = 10  # optional
 
 
 class PostDetailView(DetailView):
@@ -64,7 +62,6 @@ class PostDetailView(DetailView):
 class PostCreateView(LoginRequiredMixin, CreateView):
     """
     Create a new post. Only authenticated users may create posts.
-    Handles tags from the PostForm.tags (comma-separated).
     """
     model = Post
     form_class = PostForm
@@ -73,36 +70,14 @@ class PostCreateView(LoginRequiredMixin, CreateView):
     login_url = 'login'  # assumes a 'login' named URL exists
 
     def form_valid(self, form):
-        # set author and save post first
         form.instance.author = self.request.user
-        response = super().form_valid(form)
-
-        # parse tags string and assign Tag objects (non-destructive)
-        tags_str = form.cleaned_data.get('tags', '')
-        self._assign_tags(self.object, tags_str)
         messages.success(self.request, "Post created successfully.")
-        return response
-
-    def _assign_tags(self, post, tags_str):
-        """
-        Helper to parse comma-separated tag names, create Tag objects if needed,
-        and assign them to the post.
-        """
-        tag_names = [t.strip() for t in tags_str.split(',') if t.strip()]
-        tags = []
-        for name in tag_names:
-            tag = Tag.objects.filter(name__iexact=name).first()
-            if not tag:
-                tag = Tag.objects.create(name=name)
-            tags.append(tag)
-        # set the many-to-many relationship (replaces any existing tags)
-        post.tags.set(tags)
+        return super().form_valid(form)
 
 
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     """
     Update an existing post. Only the post's author may update it.
-    Form also handles tags (pre-filled by the form __init__).
     """
     model = Post
     form_class = PostForm
@@ -114,24 +89,6 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         # Ensures only the author can edit
         post = self.get_object()
         return self.request.user == post.author
-
-    def form_valid(self, form):
-        # save the post first
-        response = super().form_valid(form)
-
-        # parse tags and assign (same logic as create)
-        tags_str = form.cleaned_data.get('tags', '')
-        tag_names = [t.strip() for t in tags_str.split(',') if t.strip()]
-        tags = []
-        for name in tag_names:
-            tag = Tag.objects.filter(name__iexact=name).first()
-            if not tag:
-                tag = Tag.objects.create(name=name)
-            tags.append(tag)
-        self.object.tags.set(tags)
-
-        messages.success(self.request, "Post updated successfully.")
-        return response
 
     def handle_no_permission(self):
         # Provide a friendly message and default behavior
@@ -211,7 +168,7 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     """
-    Delete an existing comment. Only the comment author may delete it.
+    Delete an existing comment. Only the comment author may delete.
     """
     model = Comment
     template_name = 'blog/comments/comment_confirm_delete.html'
@@ -236,32 +193,3 @@ def comment_list(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
     comments = post.comments.all()
     return render(request, 'blog/comments/comment_list.html', {'post': post, 'comments': comments})
-
-
-# ------------------------------------
-# Search and tag views (read-only)
-# ------------------------------------
-
-def search_view(request):
-    """
-    Search posts by title, content, or tag name.
-    Uses GET query parameter 'q'.
-    """
-    query = request.GET.get('q', '').strip()
-    posts = Post.objects.none()
-    if query:
-        posts = Post.objects.filter(
-            Q(title__icontains=query) |
-            Q(content__icontains=query) |
-            Q(tags__name__icontains=query)
-        ).distinct()
-    return render(request, 'blog/search_results.html', {'query': query, 'posts': posts})
-
-
-def posts_by_tag(request, tag_name):
-    """
-    List posts associated with a tag name (case-insensitive lookup).
-    """
-    tag = get_object_or_404(Tag, name__iexact=tag_name)
-    posts = tag.posts.all()
-    return render(request, 'blog/posts_by_tag.html', {'tag': tag, 'posts': posts})

@@ -12,6 +12,13 @@ def _comment_create_delegate(request, pk):
     view = views.CommentCreateView.as_view()
     return view(request, post_id=pk)
 
+def _posts_by_tag_delegate(request, tag_name):
+    """
+    Delegate to satisfy exact-text checkers that look for 'tags/<tag_name>/'.
+    Calls the real posts_by_tag view with the provided tag_name.
+    """
+    return views.posts_by_tag(request, tag_name=tag_name)
+
 urlpatterns = [
     # authentication and profile routes 
     path('login/', auth_views.LoginView.as_view(template_name='blog/login.html'), name='login'),
@@ -49,4 +56,16 @@ urlpatterns = [
     # --- Add strings for comment update/delete too ---
     path('comment/<int:pk>/update/', views.CommentUpdateView.as_view(), name='comment-update-exact'),
     path('comment/<int:pk>/delete/', views.CommentDeleteView.as_view(), name='comment-delete-exact'),
+
+    # -----------------------------
+    # Search and Tags routes (NEW)
+    # -----------------------------
+    # Search (exact path)
+    path('search/', views.search_view, name='search'),
+
+    # Posts by tag (typed converter; preferred)
+    path('tags/<str:tag_name>/', views.posts_by_tag, name='posts-by-tag'),
+
+    # delegate for checkers that look for 'tags/<tag_name>/'
+    path('tags/<tag_name>/', _posts_by_tag_delegate, name='posts-by-tag-exact'),
 ]

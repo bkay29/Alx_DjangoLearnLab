@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Posts tagged "{{ tag.name }}"{% endblock %}
+{% block content %}
+  <h1>Posts tagged "{{ tag.name }}"</h1>
+
+  {% if posts %}
+    {% for post in posts %}
+      <article style="margin-bottom:1.25em;">
+        <h2><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h2>
+        <p><small>By {{ post.author.username }} • {{ post.published_date|date:"M d, Y" }}</small></p>
+        <p>{{ post.content|truncatewords:30 }}</p>
+      </article>
+    {% endfor %}
+  {% else %}
+    <p>No posts found for this tag.</p>
+  {% endif %}
+{% endblock %}
