@@ -1,15 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import CustomUserCreationForm, UserUpdateForm, PostForm
+from .forms import CustomUserCreationForm, UserUpdateForm, PostForm, CommentForm
 
 # Class-based view imports
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .models import Post
+from .models import Post, Comment
 
 
 def register_view(request):
@@ -113,3 +113,83 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def handle_no_permission(self):
         messages.error(self.request, "You do not have permission to delete this post.")
         return super().handle_no_permission()
+
+
+# ------------------------------------
+# Comment views (CRUD)
+# ------------------------------------
+
+class CommentCreateView(LoginRequiredMixin, CreateView):
+    """
+    Create a comment for a given post (URL must provide post_id).
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comments/comment_form.html'  # create this template
+    login_url = 'login'
+
+    def dispatch(self, request, *args, **kwargs):
+        # Ensure the post exists and store it on the view
+        self.post = get_object_or_404(Post, pk=kwargs.get('post_id'))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Set author and related post before saving
+        form.instance.author = self.request.user
+        form.instance.post = self.post
+        messages.success(self.request, "Comment posted.")
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # Redirect back to the post detail page
+        return reverse('blog:post-detail', kwargs={'pk': self.post.pk})
+
+
+class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    """
+    Update an existing comment. Only the comment author may update.
+    """
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comments/comment_form.html'
+    login_url = 'login'
+
+    def test_func(self):
+        comment = self.get_object()
+        return comment.author == self.request.user
+
+    def handle_no_permission(self):
+        messages.error(self.request, "You do not have permission to edit this comment.")
+        return super().handle_no_permission()
+
+    def get_success_url(self):
+        return reverse('blog:post-detail', kwargs={'pk': self.get_object().post.pk})
+
+
+class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    """
+    Delete an existing comment. Only the comment author may delete.
+    """
+    model = Comment
+    template_name = 'blog/comments/comment_confirm_delete.html'
+    login_url = 'login'
+
+    def test_func(self):
+        comment = self.get_object()
+        return comment.author == self.request.user
+
+    def handle_no_permission(self):
+        messages.error(self.request, "You do not have permission to delete this comment.")
+        return super().handle_no_permission()
+
+    def get_success_url(self):
+        return reverse('blog:post-detail', kwargs={'pk': self.get_object().post.pk})
+
+
+def comment_list(request, post_id):
+    """
+    Optional explicit view to list comments for a post.
+    """
+    post = get_object_or_404(Post, pk=post_id)
+    comments = post.comments.all()
+    return render(request, 'blog/comments/comment_list.html', {'post': post, 'comments': comments})

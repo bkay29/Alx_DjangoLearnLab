@@ -1,0 +1,27 @@
+{# blog/templates/blog/comments/comment_confirm_delete.html #}
+{% extends "base.html" %}
+
+{% block title %}Delete Comment{% endblock %}
+
+{% block content %}
+  {% with post_obj=post|default:object.post %}
+    <h1>Delete Comment</h1>
+
+    <p>Are you sure you want to delete this comment?</p>
+
+    <div class="comment-preview" style="border:1px solid #eee; padding:1em; margin:1em 0;">
+      <p><strong>{{ object.author }}</strong> — {{ object.created_at }}</p>
+      <p>{{ object.content|linebreaksbr }}</p>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes, delete</button>
+      {% if post_obj %}
+        <a href="{% url 'blog:post-detail' pk=post_obj.pk %}">No — go back</a>
+      {% else %}
+        <a href="{% url 'blog:post-list' %}">No — go back</a>
+      {% endif %}
+    </form>
+  {% endwith %}
+{% endblock %}

@@ -1,0 +1,43 @@
+{# blog/templates/blog/comments/comment_form.html #}
+{% extends "base.html" %}
+
+{% block title %}
+  {% if object or form.instance.pk %}Edit Comment{% else %}Add Comment{% endif %}
+{% endblock %}
+
+{% block content %}
+  {% load static %}
+  {% comment %}
+    Determine the post object — DetailView may provide it as `post` or `object`.
+  {% endcomment %}
+  {% with post_obj=post|default:object %}
+    <h1>
+      {% if object or form.instance.pk %}Edit Comment{% else %}Add Comment{% endif %}
+    </h1>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <div>
+        {{ form.content.label_tag }}
+        {{ form.content }}
+        {% if form.content.help_text %}
+          <small>{{ form.content.help_text }}</small>
+        {% endif %}
+        {{ form.content.errors }}
+      </div>
+
+      <div style="margin-top: 1em;">
+        <button type="submit" class="btn"> 
+          {% if object or form.instance.pk %}Update Comment{% else %}Post Comment{% endif %}
+        </button>
+
+        {% if post_obj %}
+          <a href="{% url 'blog:post-detail' pk=post_obj.pk %}">Cancel</a>
+        {% else %}
+          <a href="{% url 'blog:post-list' %}">Cancel</a>
+        {% endif %}
+      </div>
+    </form>
+  {% endwith %}
+{% endblock %}

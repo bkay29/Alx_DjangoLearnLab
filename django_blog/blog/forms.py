@@ -1,9 +1,9 @@
-from django import forms
+from django import forms 
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 # Import your Post model for the ModelForm
-from .models import Post
+from .models import Post, Comment
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -31,3 +31,30 @@ class PostForm(forms.ModelForm):
         widgets = {
             'content': forms.Textarea(attrs={'rows': 10}),
         }
+
+
+class CommentForm(forms.ModelForm):
+    """
+    ModelForm for creating/updating comments.
+    Includes validation:
+      - content cannot be empty
+      - min length 3
+      - max length 1000
+    """
+    content = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3, 'placeholder': 'Write your comment...'}),
+        max_length=1000,
+        help_text='Max 1000 characters.'
+    )
+
+    class Meta:
+        model = Comment
+        fields = ['content']
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').strip()
+        if not content:
+            raise forms.ValidationError('Comment cannot be empty.')
+        if len(content) < 3:
+            raise forms.ValidationError('Comment is too short (min 3 characters).')
+        return content

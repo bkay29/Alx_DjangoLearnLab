@@ -1,0 +1,36 @@
+{# blog/templates/blog/comments/comment_list.html #}
+{% extends "base.html" %}
+
+{% block title %}Comments for {{ post.title|default:object.title }}{% endblock %}
+
+{% block content %}
+  {% with post_obj=post|default:object %}
+    <h1>Comments for: {{ post_obj.title }}</h1>
+
+    {% if comments %}
+      {% for comment in comments %}
+        <div class="comment" style="border-bottom:1px solid #ddd; padding:0.75em 0;">
+          <p style="margin:0;"><strong>{{ comment.author }}</strong> — {{ comment.created_at }}</p>
+          <p style="margin:0.5em 0;">{{ comment.content|linebreaksbr }}</p>
+
+          {% if user.is_authenticated and comment.author == user %}
+            <p style="margin-top:0.5em;">
+              <a href="{% url 'blog:comment-edit' pk=comment.pk %}">Edit</a> |
+              <a href="{% url 'blog:comment-delete' pk=comment.pk %}">Delete</a>
+            </p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>No comments yet — be the first to comment!</p>
+    {% endif %}
+
+    <div style="margin-top:1em;">
+      {% if user.is_authenticated %}
+        <a href="{% url 'blog:comment-create' post_id=post_obj.pk %}" class="btn">Add Comment</a>
+      {% else %}
+        <p><a href="{% url 'login' %}?next={{ request.path }}">Log in</a> to add a comment.</p>
+      {% endif %}
+    </div>
+  {% endwith %}
+{% endblock %}
