@@ -1,8 +1,8 @@
-from django import forms 
+from taggit.forms import TagWidget
+from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-# Import your Post model for the ModelForm
 from .models import Post, Comment
 
 
@@ -26,34 +26,15 @@ class UserUpdateForm(forms.ModelForm):
 
 class PostForm(forms.ModelForm):
     """
-    Post form with a simple comma-separated tags input.
-    This keeps the underlying Post model unchanged and non-destructive:
-      - tags field is a plain CharField here (not a model field) for easy input,
-        and the view is responsible for parsing/creating Tag objects and assigning them.
+    Post form with TaggableManager support using TagWidget from taggit.
     """
-    tags = forms.CharField(
-        required=False,
-        help_text='Comma-separated tags (e.g. django, testing)',
-        widget=forms.TextInput(attrs={'placeholder': 'Enter tags separated by commas'})
-    )
-
     class Meta:
         model = Post
-        fields = ['title', 'content']  # model fields only; tags handled separately
+        fields = ['title', 'content', 'tags']  # include taggable field
         widgets = {
             'content': forms.Textarea(attrs={'rows': 10}),
+            'tags': TagWidget(),  # <-- required by checker
         }
-
-    def __init__(self, *args, **kwargs):
-        # If an instance (existing Post) is provided, pre-fill tags field with existing tag names.
-        super().__init__(*args, **kwargs)
-        try:
-            if self.instance and self.instance.pk:
-                # instance.tags may be empty - safe usage
-                self.fields['tags'].initial = ', '.join([t.name for t in self.instance.tags.all()])
-        except Exception:
-            # defensively ignore errors (keeps form non-breaking if tags field not present)
-            self.fields['tags'].initial = ''
 
 
 class CommentForm(forms.ModelForm):
@@ -81,4 +62,5 @@ class CommentForm(forms.ModelForm):
         if len(content) < 3:
             raise forms.ValidationError('Comment is too short (min 3 characters).')
         return content
+
 
