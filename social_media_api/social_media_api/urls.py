@@ -22,7 +22,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/accounts/', include('accounts.urls')),
-    path('api/', include('posts.urls')),  # includes posts/ and comments/
+    path('api/posts/', include('posts.urls', namespace='posts')),  # includes posts/ and comments/
+    path('api/notifications/', include('notifications.urls', namespace='notifications')),  # includes notifications/
 ]
 
 if settings.DEBUG:

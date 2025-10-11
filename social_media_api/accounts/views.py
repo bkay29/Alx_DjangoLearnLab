@@ -94,6 +94,17 @@ def followuser(request, user_id):
         return Response({'detail': 'Already following.'}, status=status.HTTP_400_BAD_REQUEST)
 
     request.user.following.add(target)
+    try: 
+        from notifications.utils import create_notification
+        create_notification(
+            recipient=target,
+            actor=request.user,
+            verb='started following you',
+            target=None
+        )
+    except Exception:
+        pass  # fail silently if notifications app not installed
+    
     return Response({'detail': f'Now following {target.username}.'}, status=status.HTTP_200_OK)
 
 
